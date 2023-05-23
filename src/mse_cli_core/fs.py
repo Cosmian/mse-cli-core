@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Iterator, List
 
 
-def whilelist() -> List[str]:
+def whitelist() -> List[str]:
+    """Get a default whitelist."""
     return list({"requirements.txt"})
 
 
