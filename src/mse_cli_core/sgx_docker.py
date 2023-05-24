@@ -72,9 +72,9 @@ class SgxDockerConfig(BaseModel):
         """Define the docker devices."""
         return [
             "/dev/sgx_enclave:/dev/sgx_enclave:rw",
-            "/dev/sgx_provision:/dev/sgx_enclave:rw",
-            "/dev/sgx/enclave:/dev/sgx_enclave:rw",
-            "/dev/sgx/provision:/dev/sgx_enclave:rw",
+            "/dev/sgx_provision:/dev/sgx_provision:rw",
+            "/dev/sgx/enclave:/dev/sgx/enclave:rw",
+            "/dev/sgx/provision:/dev/sgx/provision:rw",
         ]
 
     @staticmethod

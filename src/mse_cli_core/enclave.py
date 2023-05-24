@@ -6,8 +6,9 @@ from pathlib import Path
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from cryptography.x509 import Certificate
 from docker.client import DockerClient
-from intel_sgx_ra.attest import remote_attestation
-from intel_sgx_ra.ratls import ratls_verification
+
+# from intel_sgx_ra.attest import verify_quote
+from intel_sgx_ra.ratls import ratls_verify
 from intel_sgx_ra.signer import mr_signer_from_pk
 
 from mse_cli_core.no_sgx_docker import NoSgxDockerConfig
@@ -57,13 +58,13 @@ def compute_mr_enclave(
 
 def verify_enclave(
     signer_pk: RSAPublicKey, ratls_certificate: Certificate, fingerprint: str
-):  # TODO: update with intel-sgx-ra
+):
     """Verify an enclave trustworthiness."""
     # Compute MRSIGNER value from public key
     mrsigner = mr_signer_from_pk(signer_pk)
 
     # Check certificate's public key in quote's user report data
-    quote = ratls_verification(ratls_certificate)
+    quote = ratls_verify(ratls_certificate)
 
     # Check MRSIGNER
     if quote.report_body.mr_signer != mrsigner:
@@ -75,7 +76,7 @@ def verify_enclave(
 
         # Check enclave certificates and information
         # try:
-        #     remote_attestation(quote=quote)  # TODO: PCCS_URL to change here
+        #     verify_quote(quote=quote)  # PCCS_URL to change here
         # except Exception as exc:
         #     LOG.error("Verification failed!")
         #     raise exc
