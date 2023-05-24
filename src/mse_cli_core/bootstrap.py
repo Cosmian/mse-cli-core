@@ -1,6 +1,5 @@
 """mse_cli_core.bootstrap module."""
 
-import time
 from typing import Any, Dict, Optional, Union
 from uuid import UUID
 
@@ -8,6 +7,7 @@ import requests
 from pydantic import BaseModel
 
 from mse_cli_core.base64 import base64url_encode
+from mse_cli_core.clock_tick import ClockTick
 
 
 class ConfigurationPayload(BaseModel):
@@ -36,7 +36,7 @@ class ConfigurationPayload(BaseModel):
         return data
 
 
-def send_secrets(url: str, data: Dict[str, Any], verify: Union[bool, str] = True):
+def configure_app(url: str, data: Dict[str, Any], verify: Union[bool, str] = True):
     """Send the secrets to the configuration server."""
     r = requests.post(
         url=url,
@@ -48,14 +48,16 @@ def send_secrets(url: str, data: Dict[str, Any], verify: Union[bool, str] = True
 
     if not r.ok:
         raise Exception(
-            f"Fail to send secrets data (Response {r.status_code} {r.text})"
+            "Fail to send data to the configuration server "
+            f"(Response {r.status_code} {r.text})"
         )
 
 
-def wait_for_conf_server(url: str, verify: Union[bool, str] = True):
+def wait_for_conf_server(clock: ClockTick, url: str, verify: Union[bool, str] = True):
     """Hold on until the configuration server is up and listing."""
-    while not is_waiting_for_secrets(url, verify):
-        time.sleep(5)
+    while clock.tick():
+        if is_waiting_for_secrets(url, verify):
+            break
 
 
 def is_waiting_for_secrets(url: str, verify: Union[bool, str] = True) -> bool:
@@ -67,18 +69,22 @@ def is_waiting_for_secrets(url: str, verify: Union[bool, str] = True) -> bool:
             return True
     except requests.exceptions.SSLError:
         return False
+    except requests.exceptions.ConnectionError:
+        return False
 
     return False
 
 
 def wait_for_app_server(
+    clock: ClockTick,
     url: str,
     healthcheck_endpoint: str,
     verify: Union[bool, str] = True,
 ):
     """Hold on until the configuration server is stopped and the app starts."""
-    while not is_ready(url, healthcheck_endpoint, verify):
-        time.sleep(5)
+    while clock.tick():
+        if is_ready(url, healthcheck_endpoint, verify):
+            break
 
 
 def is_ready(
