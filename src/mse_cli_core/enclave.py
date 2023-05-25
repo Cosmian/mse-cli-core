@@ -2,12 +2,12 @@
 
 import re
 from pathlib import Path
+from typing import Optional, Tuple
 
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
-from cryptography.x509 import Certificate
+from cryptography.x509 import Certificate, CertificateRevocationList
 from docker.client import DockerClient
-
-# from intel_sgx_ra.attest import verify_quote
+from intel_sgx_ra.attest import verify_quote
 from intel_sgx_ra.ratls import ratls_verify
 from intel_sgx_ra.signer import mr_signer_from_pk
 
@@ -57,7 +57,13 @@ def compute_mr_enclave(
 
 
 def verify_enclave(
-    signer_pk: RSAPublicKey, ratls_certificate: Certificate, fingerprint: str
+    signer_pk: RSAPublicKey,
+    ratls_certificate: Certificate,
+    fingerprint: str,
+    collaterals: Optional[
+        Tuple[CertificateRevocationList, CertificateRevocationList]
+    ] = None,
+    pccs_url: Optional[str] = None,
 ):
     """Verify an enclave trustworthiness."""
     # Compute MRSIGNER value from public key
@@ -74,13 +80,10 @@ def verify_enclave(
             f"but should be {bytes(mrsigner).hex()})"
         )
 
-        # Check enclave certificates and information
-        # try:
-        #     verify_quote(quote=quote)  # PCCS_URL to change here
-        # except Exception as exc:
-        #     LOG.error("Verification failed!")
-        #     raise exc
+    # Check enclave certificates and information
+    verify_quote(quote=quote, collaterals=collaterals, pccs_url=pccs_url)
 
+    # Check MRENCLAVE
     if quote.report_body.mr_enclave != bytes.fromhex(fingerprint):
         raise WrongMREnclave(
             "Code fingerprint is wrong "
