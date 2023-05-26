@@ -1,3 +1,3 @@
 """mse_cli_core module."""
 
-__version__ = "0.1a2"
+__version__ = "0.1a3"

@@ -17,6 +17,7 @@ class ConfigurationPayload(BaseModel):
     secrets: Optional[Any]
     sealed_secrets: Optional[bytes]
     code_secret_key: Optional[bytes]
+    ssl_private_key: Optional[str]
 
     def payload(self) -> Dict[str, Any]:
         """Build the payload to send to the configuration server."""
@@ -32,6 +33,9 @@ class ConfigurationPayload(BaseModel):
 
         if self.code_secret_key:
             data["code_secret_key"] = self.code_secret_key.hex()
+
+        if self.ssl_private_key:
+            data["ssl_private_key"] = self.ssl_private_key
 
         return data
 
