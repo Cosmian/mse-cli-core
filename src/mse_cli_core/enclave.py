@@ -2,7 +2,7 @@
 
 import re
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from cryptography.x509 import Certificate, CertificateRevocationList
@@ -57,11 +57,11 @@ def compute_mr_enclave(
 
 
 def verify_enclave(
-    signer_pk: RSAPublicKey,
-    ratls_certificate: Certificate,
-    fingerprint: str,
+    signer_pk: Union[RSAPublicKey, Path, bytes],
+    ratls_certificate: Union[str, bytes, Path, Certificate],
+    fingerprint: Optional[str],
     collaterals: Optional[
-        Tuple[CertificateRevocationList, CertificateRevocationList]
+        Tuple[bytes, Certificate, CertificateRevocationList, CertificateRevocationList]
     ] = None,
     pccs_url: Optional[str] = None,
 ):
@@ -84,9 +84,10 @@ def verify_enclave(
     verify_quote(quote=quote, collaterals=collaterals, pccs_url=pccs_url)
 
     # Check MRENCLAVE
-    if quote.report_body.mr_enclave != bytes.fromhex(fingerprint):
-        raise WrongMREnclave(
-            "Code fingerprint is wrong "
-            f"(read {bytes(quote.report_body.mr_enclave).hex()} "
-            f"but should be {fingerprint})"
-        )
+    if fingerprint:
+        if quote.report_body.mr_enclave != bytes.fromhex(fingerprint):
+            raise WrongMREnclave(
+                "Code fingerprint is wrong "
+                f"(read {bytes(quote.report_body.mr_enclave).hex()} "
+                f"but should be {fingerprint})"
+            )

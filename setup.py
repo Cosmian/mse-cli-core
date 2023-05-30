@@ -39,7 +39,7 @@ setup(
     install_requires=[
         "cryptography>=40.0.2,<41.0",
         "docker>=6.0.1,<7.0.0",
-        "intel-sgx-ra==2.0a4",
+        "intel-sgx-ra==2.0a7",
         "pydantic>=1.10.2,<2.0.0",
         "requests>=2.28.1,<2.29.0",
         "toml>=0.10.2,<0.11.0",
