@@ -79,7 +79,7 @@ class SgxDockerConfig(BaseModel):
 
     @staticmethod
     def load(docker_attrs: Dict[str, Any], docker_labels: Any):
-        """Load the the docker configuration from the container."""
+        """Load the docker configuration from the container."""
         dataMap: Dict[str, Any] = {}
 
         cmd = docker_attrs["Config"]["Cmd"]
