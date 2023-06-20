@@ -1,10 +1,9 @@
 """mse_cli_core.no_sgx_docker module."""
 
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import ClassVar, Dict, List, Optional
 from uuid import UUID
 
-import toml
 from pydantic import BaseModel
 
 from mse_cli_core.sgx_docker import SgxDockerConfig
@@ -67,14 +66,6 @@ class NoSgxDockerConfig(BaseModel):
         return v
 
     @staticmethod
-    def load(path: Path):
-        """Load the args from a toml file."""
-        with open(path, encoding="utf8") as f:
-            dataMap = toml.load(f)
-
-            return NoSgxDockerConfig(**dataMap)
-
-    @staticmethod
     def from_sgx(docker_config: SgxDockerConfig):
         """Load from a SgxDockerConfig object."""
         return NoSgxDockerConfig(
@@ -84,17 +75,3 @@ class NoSgxDockerConfig(BaseModel):
             app_id=docker_config.app_id,
             application=docker_config.application,
         )
-
-    def save(self, path: Path) -> None:
-        """Save the args into a toml file."""
-        with open(path, "w", encoding="utf8") as f:
-            dataMap: Dict[str, Any] = {
-                "host": self.host,
-                "expiration_date": self.expiration_date,
-                "app_cert": str(self.app_cert) if self.app_cert else None,
-                "size": self.size,
-                "app_id": str(self.app_id),
-                "application": self.application,
-            }
-
-            toml.dump(dataMap, f)

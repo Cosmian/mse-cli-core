@@ -61,7 +61,13 @@ def verify_enclave(
     ratls_certificate: Union[str, bytes, Path, Certificate],
     fingerprint: Optional[str],
     collaterals: Optional[
-        Tuple[bytes, Certificate, CertificateRevocationList, CertificateRevocationList]
+        Tuple[
+            bytes,
+            bytes,
+            Certificate,
+            CertificateRevocationList,
+            CertificateRevocationList,
+        ]
     ] = None,
     pccs_url: Optional[str] = None,
 ):

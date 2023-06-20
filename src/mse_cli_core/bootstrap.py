@@ -1,6 +1,6 @@
 """mse_cli_core.bootstrap module."""
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Callable, Dict, Iterable, Optional, Union
 from uuid import UUID
 
 import requests
@@ -57,9 +57,18 @@ def configure_app(url: str, data: Dict[str, Any], verify: Union[bool, str] = Tru
         )
 
 
-def wait_for_conf_server(clock: ClockTick, url: str, verify: Union[bool, str] = True):
+def wait_for_conf_server(
+    clock: ClockTick,
+    url: str,
+    verify: Union[bool, str] = True,
+    extra_check: Optional[Callable] = None,
+    extra_check_args: Iterable = (),
+):
     """Hold on until the configuration server is up and listing."""
     while clock.tick():
+        if extra_check:
+            extra_check(*extra_check_args)
+
         if is_waiting_for_secrets(url, verify):
             break
 
@@ -84,9 +93,14 @@ def wait_for_app_server(
     url: str,
     healthcheck_endpoint: str,
     verify: Union[bool, str] = True,
+    extra_check: Optional[Callable] = None,
+    extra_check_args: Iterable = (),
 ):
     """Hold on until the configuration server is stopped and the app starts."""
     while clock.tick():
+        if extra_check:
+            extra_check(*extra_check_args)
+
         if is_ready(url, healthcheck_endpoint, verify):
             break
 
