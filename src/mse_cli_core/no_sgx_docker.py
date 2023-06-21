@@ -19,8 +19,7 @@ class NoSgxDockerConfig(BaseModel):
     app_id: UUID
     application: str
 
-    code_mountpoint: ClassVar[str] = "/tmp/app.tar"
-    app_cert_mountpoint: ClassVar[str] = "/tmp/cert.pem"
+    app_mountpoint: ClassVar[str] = "/opt/input"
     entrypoint: ClassVar[str] = "mse-run"
 
     def cmd(self) -> List[str]:
@@ -28,8 +27,6 @@ class NoSgxDockerConfig(BaseModel):
         command = [
             "--size",
             f"{self.size}M",
-            "--code",
-            NoSgxDockerConfig.code_mountpoint,
             "--san",
             str(self.host),
             "--id",
@@ -39,31 +36,20 @@ class NoSgxDockerConfig(BaseModel):
             "--dry-run",
         ]
 
-        if self.app_cert:
-            command.append("--certificate")
-            command.append(NoSgxDockerConfig.app_cert_mountpoint)
-        else:
-            command.append("--ratls")
+        if not self.app_cert:
+            command.append("--expiration")
             command.append(str(self.expiration_date))
 
         return command
 
-    def volumes(self, code_tar_path: Path) -> Dict[str, Dict[str, str]]:
+    def volumes(self, app_path: Path) -> Dict[str, Dict[str, str]]:
         """Define the docker volumes."""
-        v = {
-            f"{code_tar_path.resolve()}": {
-                "bind": NoSgxDockerConfig.code_mountpoint,
+        return {
+            f"{app_path.resolve()}": {
+                "bind": NoSgxDockerConfig.app_mountpoint,
                 "mode": "rw",
             }
         }
-
-        if self.app_cert:
-            v[f"{self.app_cert.resolve()}"] = {
-                "bind": NoSgxDockerConfig.app_cert_mountpoint,
-                "mode": "rw",
-            }
-
-        return v
 
     @staticmethod
     def from_sgx(docker_config: SgxDockerConfig):

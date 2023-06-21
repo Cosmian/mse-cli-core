@@ -15,13 +15,13 @@ class SgxDockerConfig(BaseModel):
     port: int
     app_id: UUID
     expiration_date: int
-    code: Path
+    app_dir: Path
     application: str
     healthcheck: str
     signer_key: Path
 
     signer_key_mountpoint: ClassVar[str] = "/root/.config/gramine/enclave-key.pem"
-    code_mountpoint: ClassVar[str] = "/tmp/app.tar"
+    app_mountpoint: ClassVar[str] = "/opt/input"
     docker_label: ClassVar[str] = "mse-home"
     entrypoint: ClassVar[str] = "mse-run"
 
@@ -30,15 +30,13 @@ class SgxDockerConfig(BaseModel):
         return [
             "--size",
             f"{self.size}M",
-            "--code",
-            SgxDockerConfig.code_mountpoint,
             "--san",
             str(self.host),
             "--id",
             str(self.app_id),
             "--application",
             self.application,
-            "--ratls",
+            "--expiration",
             str(self.expiration_date),
         ]
 
@@ -56,8 +54,8 @@ class SgxDockerConfig(BaseModel):
     def volumes(self) -> Dict[str, Dict[str, str]]:
         """Define the docker volumes."""
         return {
-            f"{self.code.resolve()}": {
-                "bind": SgxDockerConfig.code_mountpoint,
+            f"{self.app_dir.resolve()}": {
+                "bind": SgxDockerConfig.app_mountpoint,
                 "mode": "rw",
             },
             "/var/run/aesmd": {"bind": "/var/run/aesmd", "mode": "rw"},
@@ -91,9 +89,9 @@ class SgxDockerConfig(BaseModel):
                 docker_attrs["Mounts"],
             )
         )
-        code = next(
+        app = next(
             filter(
-                lambda mount: mount["Destination"] == SgxDockerConfig.code_mountpoint,
+                lambda mount: mount["Destination"] == SgxDockerConfig.app_mountpoint,
                 docker_attrs["Mounts"],
             )
         )
@@ -119,7 +117,7 @@ class SgxDockerConfig(BaseModel):
             host=dataMap["san"],
             app_id=UUID(dataMap["id"]),
             expiration_date=int(dataMap["ratls"]),
-            code=Path(code["Source"]),
+            app_dir=Path(app["Source"]),
             application=dataMap["application"],
             port=int(port["443/tcp"][0]["HostPort"]),
             healthcheck=docker_labels["healthcheck_endpoint"],

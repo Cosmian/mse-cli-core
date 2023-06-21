@@ -26,14 +26,14 @@ def compute_mr_enclave(
     client: DockerClient,
     image: str,
     app_args: NoSgxDockerConfig,
-    code_tar_path: Path,
+    app_path: Path,
     docker_path_log: Path,
 ) -> str:
     """Compute the MR enclave."""
     container = client.containers.run(
         image,
         command=app_args.cmd(),
-        volumes=app_args.volumes(code_tar_path),
+        volumes=app_args.volumes(app_path),
         entrypoint=NoSgxDockerConfig.entrypoint,
         remove=True,
         detach=False,
