@@ -80,6 +80,8 @@ def is_waiting_for_secrets(url: str, verify: Union[bool, str] = True) -> bool:
 
         if response.status_code == 200 and "Mse-Status" in response.headers:
             return True
+    except requests.exceptions.Timeout:
+        return False
     except requests.exceptions.SSLError:
         return False
     except requests.exceptions.ConnectionError:
@@ -118,6 +120,8 @@ def is_ready(
 
         if response.status_code != 503 and "Mse-Status" not in response.headers:
             return True
+    except requests.exceptions.Timeout:
+        return False
     except requests.exceptions.SSLError:
         return False
     except requests.exceptions.ConnectionError:

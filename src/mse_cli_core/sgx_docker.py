@@ -116,7 +116,7 @@ class SgxDockerConfig(BaseModel):
             size=int(dataMap["size"][:-1]),
             host=dataMap["san"],
             app_id=UUID(dataMap["id"]),
-            expiration_date=int(dataMap["ratls"]),
+            expiration_date=int(dataMap["expiration"]),
             app_dir=Path(app["Source"]),
             application=dataMap["application"],
             port=int(port["443/tcp"][0]["HostPort"]),

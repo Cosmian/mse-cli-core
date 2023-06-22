@@ -23,7 +23,7 @@ def test_from_sgx():
             port=7788,
             app_id="63322f85-1ff8-4483-91ae-f18d7398d157",
             expiration_date=1714058115,
-            code="/home/cosmian/workspace/sgx_operator/code.tar",
+            app_dir="/home/cosmian/workspace/sgx_operator/",
             application="app:app",
             healthcheck="/health",
             signer_key="/opt/cosmian-internal/cosmian-signer-key.pem",
@@ -43,9 +43,9 @@ def test_volumes():
         application="app:app",
     )
 
-    assert ref_conf.volumes(Path("/tmp/code.tar")) == {
-        "/tmp/code.tar": {
-            "bind": "/tmp/app.tar",
+    assert ref_conf.volumes(Path("/tmp/")) == {
+        "/tmp": {
+            "bind": "/opt/input",
             "mode": "rw",
         }
     }
@@ -58,15 +58,11 @@ def test_volumes():
         application="app:app",
     )
 
-    assert ref_conf.volumes(Path("/tmp/code.tar")) == {
-        "/tmp/code.tar": {
-            "bind": "/tmp/app.tar",
+    assert ref_conf.volumes(Path("/tmp/")) == {
+        "/tmp": {
+            "bind": "/opt/input",
             "mode": "rw",
-        },
-        "/app/cert.pem": {
-            "bind": "/tmp/cert.pem",
-            "mode": "rw",
-        },
+        }
     }
 
 
@@ -83,8 +79,6 @@ def test_cmd():
     assert ref_conf.cmd() == [
         "--size",
         "4096M",
-        "--code",
-        "/tmp/app.tar",
         "--san",
         "localhost",
         "--id",
@@ -92,7 +86,7 @@ def test_cmd():
         "--application",
         "app:app",
         "--dry-run",
-        "--ratls",
+        "--expiration",
         "1714058115",
     ]
 
@@ -107,8 +101,6 @@ def test_cmd():
     assert ref_conf.cmd() == [
         "--size",
         "4096M",
-        "--code",
-        "/tmp/app.tar",
         "--san",
         "localhost",
         "--id",
@@ -116,6 +108,4 @@ def test_cmd():
         "--application",
         "app:app",
         "--dry-run",
-        "--certificate",
-        "/tmp/cert.pem",
     ]
