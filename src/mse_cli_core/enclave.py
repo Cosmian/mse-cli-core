@@ -1,12 +1,14 @@
 """mse_cli_core.enclave module."""
 
 import re
+import uuid
 from pathlib import Path
 from typing import Optional, Tuple, Union
 
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from cryptography.x509 import Certificate, CertificateRevocationList
 from docker.client import DockerClient
+from docker.errors import NotFound
 from intel_sgx_ra.attest import verify_quote
 from intel_sgx_ra.ratls import ratls_verify
 from intel_sgx_ra.signer import mr_signer_from_pk
@@ -30,23 +32,42 @@ def compute_mr_enclave(
     docker_path_log: Path,
 ) -> str:
     """Compute the MR enclave."""
-    container = client.containers.run(
-        image,
-        command=app_args.cmd(),
-        volumes=app_args.volumes(app_path),
-        entrypoint=NoSgxDockerConfig.entrypoint,
-        remove=True,
-        detach=False,
-        stdout=True,
-        stderr=True,
-    )
+    container_name = str(uuid.uuid4())
+    output = b""
 
-    # Save the docker output
-    docker_path_log.write_bytes(container)
+    try:
+        container = client.containers.run(
+            image,
+            name=container_name,
+            command=app_args.cmd(),
+            volumes=app_args.volumes(app_path),
+            entrypoint=NoSgxDockerConfig.entrypoint,
+            # We do not remove the container to be able to print the error (if some)
+            remove=False,
+            detach=False,
+            stdout=True,
+            stderr=True,
+        )
+    except Exception as exc:
+        raise Exception(
+            f"Error starting the docker (see logs at {docker_path_log})"
+        ) from exc
+    finally:
+        try:
+            container = client.containers.get(container_name)
+            # Save the docker output
+            output = container.logs()
+            docker_path_log.write_bytes(output)
+            container.stop(timeout=1)
+            # We need to remove the container since we declare remove=False previously
+            container.remove()
+
+        except NotFound:
+            pass
 
     # Get the mr_enclave from the docker output
     pattern = "Measurement:\n[ ]*([a-z0-9]{64})"
-    m = re.search(pattern.encode("utf-8"), container)
+    m = re.search(pattern.encode("utf-8"), output)
 
     if not m:
         raise Exception(

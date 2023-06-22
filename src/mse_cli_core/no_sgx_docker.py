@@ -14,7 +14,6 @@ class NoSgxDockerConfig(BaseModel):
 
     host: str
     expiration_date: Optional[int]
-    app_cert: Optional[Path]
     size: int
     app_id: UUID
     application: str
@@ -36,7 +35,7 @@ class NoSgxDockerConfig(BaseModel):
             "--dry-run",
         ]
 
-        if not self.app_cert:
+        if self.expiration_date:
             command.append("--expiration")
             command.append(str(self.expiration_date))
 
