@@ -50,21 +50,6 @@ def test_volumes():
         }
     }
 
-    ref_conf = NoSgxDockerConfig(
-        host="localhost",
-        app_cert="/app/cert.pem",
-        size=4096,
-        app_id="63322f85-1ff8-4483-91ae-f18d7398d157",
-        application="app:app",
-    )
-
-    assert ref_conf.volumes(Path("/tmp/")) == {
-        "/tmp": {
-            "bind": "/opt/input",
-            "mode": "rw",
-        }
-    }
-
 
 def test_cmd():
     """Test `cmd` function."""
@@ -92,7 +77,6 @@ def test_cmd():
 
     ref_conf = NoSgxDockerConfig(
         host="localhost",
-        app_cert="cert.pem",
         size=4096,
         app_id="63322f85-1ff8-4483-91ae-f18d7398d157",
         application="app:app",
