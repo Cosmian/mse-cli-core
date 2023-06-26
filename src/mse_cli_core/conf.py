@@ -172,7 +172,7 @@ class AppConf(BaseModel):
     def cloud_or_raise(self) -> CloudConf:
         """Get the cloud configuration or raise if there is none."""
         if not self.cloud:
-            raise Exception("No `cloud` configuration find in the app configuration")
+            raise Exception("No `cloud` configuration found in the app configuration")
 
         return self.cloud
 
