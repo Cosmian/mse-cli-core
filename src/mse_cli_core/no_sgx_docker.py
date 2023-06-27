@@ -12,6 +12,7 @@ from mse_cli_core.sgx_docker import SgxDockerConfig
 class NoSgxDockerConfig(BaseModel):
     """Definition of an mse docker running on a non-sgx hardware."""
 
+    subject: str
     subject_alternative_name: str
     expiration_date: Optional[int]
     size: int
@@ -26,8 +27,10 @@ class NoSgxDockerConfig(BaseModel):
         command = [
             "--size",
             f"{self.size}M",
+            "--subject",
+            self.subject,
             "--san",
-            str(self.subject_alternative_name),
+            self.subject_alternative_name,
             "--id",
             str(self.app_id),
             "--application",
@@ -54,6 +57,7 @@ class NoSgxDockerConfig(BaseModel):
     def from_sgx(docker_config: SgxDockerConfig):
         """Load from a SgxDockerConfig object."""
         return NoSgxDockerConfig(
+            subject=docker_config.subject,
             subject_alternative_name=docker_config.subject_alternative_name,
             expiration_date=docker_config.expiration_date,
             size=docker_config.size,

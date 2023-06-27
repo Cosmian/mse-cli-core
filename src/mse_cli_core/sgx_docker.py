@@ -14,6 +14,7 @@ class SgxDockerConfig(BaseModel):
     host: str
     port: int
     app_id: UUID
+    subject: str
     subject_alternative_name: str
     expiration_date: int
     app_dir: Path
@@ -31,8 +32,10 @@ class SgxDockerConfig(BaseModel):
         return [
             "--size",
             f"{self.size}M",
+            "--subject",
+            self.subject,
             "--san",
-            str(self.subject_alternative_name),
+            self.subject_alternative_name,
             "--id",
             str(self.app_id),
             "--application",
@@ -116,6 +119,7 @@ class SgxDockerConfig(BaseModel):
         return SgxDockerConfig(
             size=int(dataMap["size"][:-1]),
             host=port["443/tcp"][0]["HostIp"],
+            subject=dataMap["subject"],
             subject_alternative_name=dataMap["san"],
             app_id=UUID(dataMap["id"]),
             expiration_date=int(dataMap["expiration"]),
