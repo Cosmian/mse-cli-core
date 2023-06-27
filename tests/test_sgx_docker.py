@@ -8,9 +8,10 @@ def test_load():
     """Test `load` function."""
     ref_conf = SgxDockerConfig(
         size=4096,
-        host="myapp.fr",
+        host="0.0.0.0",
         port=7788,
         app_id="4141a3e6-1f2b-4ccf-8610-aa0891a1a210",
+        subject_alternative_name="myapp.fr",
         expiration_date=1714639412,
         app_dir="/home/cosmian/workspace/sgx_operator/",
         application="app:app",
@@ -23,7 +24,7 @@ def test_load():
         docker_attrs={
             "HostConfig": {
                 "PortBindings": {
-                    "443/tcp": [{"HostIp": "127.0.0.1", "HostPort": "7788"}]
+                    "443/tcp": [{"HostIp": "0.0.0.0", "HostPort": "7788"}]
                 },
             },
             "Config": {
@@ -76,9 +77,10 @@ def test_labels():
     """Test `labels` function."""
     ref_conf = SgxDockerConfig(
         size=4096,
-        host="myapp.fr",
+        host="0.0.0.0",
         port=7788,
         app_id="4141a3e6-1f2b-4ccf-8610-aa0891a1a210",
+        subject_alternative_name="myapp.fr",
         expiration_date=1714639412,
         app_dir="/home/cosmian/workspace/sgx_operator/",
         application="app:app",
@@ -93,9 +95,10 @@ def test_devices():
     """Test `devices` function."""
     ref_conf = SgxDockerConfig(
         size=4096,
-        host="myapp.fr",
+        host="0.0.0.0",
         port=7788,
         app_id="4141a3e6-1f2b-4ccf-8610-aa0891a1a210",
+        subject_alternative_name="myapp.fr",
         expiration_date=1714639412,
         app_dir="/home/cosmian/workspace/sgx_operator/",
         application="app:app",
@@ -115,9 +118,10 @@ def test_ports():
     """Test `ports` function."""
     ref_conf = SgxDockerConfig(
         size=4096,
-        host="myapp.fr",
+        host="0.0.0.0",
         port=7788,
         app_id="4141a3e6-1f2b-4ccf-8610-aa0891a1a210",
+        subject_alternative_name="myapp.fr",
         expiration_date=1714639412,
         app_dir="/home/cosmian/workspace/sgx_operator/code.tar",
         application="app:app",
@@ -125,16 +129,17 @@ def test_ports():
         signer_key="/opt/cosmian-internal/cosmian-signer-key.pem",
     )
 
-    assert ref_conf.ports() == {"443/tcp": ("127.0.0.1", "7788")}
+    assert ref_conf.ports() == {"443/tcp": ("0.0.0.0", "7788")}
 
 
 def test_volumes():
     """Test `volumes` function."""
     ref_conf = SgxDockerConfig(
         size=4096,
-        host="myapp.fr",
+        host="0.0.0.0",
         port=7788,
         app_id="4141a3e6-1f2b-4ccf-8610-aa0891a1a210",
+        subject_alternative_name="myapp.fr",
         expiration_date=1714639412,
         app_dir="/home/cosmian/workspace/sgx_operator/",
         application="app:app",
@@ -162,9 +167,10 @@ def test_cmd():
     """Test `cmd` function."""
     ref_conf = SgxDockerConfig(
         size=4096,
-        host="myapp.fr",
+        host="0.0.0.0",
         port=7788,
         app_id="4141a3e6-1f2b-4ccf-8610-aa0891a1a210",
+        subject_alternative_name="myapp.fr",
         expiration_date=1714639412,
         app_dir="/home/cosmian/workspace/sgx_operator/",
         application="app:app",

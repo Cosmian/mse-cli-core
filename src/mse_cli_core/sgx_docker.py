@@ -14,6 +14,7 @@ class SgxDockerConfig(BaseModel):
     host: str
     port: int
     app_id: UUID
+    subject_alternative_name: str
     expiration_date: int
     app_dir: Path
     application: str
@@ -31,7 +32,7 @@ class SgxDockerConfig(BaseModel):
             "--size",
             f"{self.size}M",
             "--san",
-            str(self.host),
+            str(self.subject_alternative_name),
             "--id",
             str(self.app_id),
             "--application",
@@ -42,7 +43,7 @@ class SgxDockerConfig(BaseModel):
 
     def ports(self) -> Dict[str, Tuple[str, str]]:
         """Define the docker ports."""
-        return {"443/tcp": ("127.0.0.1", str(self.port))}
+        return {"443/tcp": (self.host, str(self.port))}
 
     def labels(self) -> Dict[str, str]:
         """Define the docker labels."""
@@ -114,7 +115,8 @@ class SgxDockerConfig(BaseModel):
 
         return SgxDockerConfig(
             size=int(dataMap["size"][:-1]),
-            host=dataMap["san"],
+            host=port["443/tcp"][0]["HostIp"],
+            subject_alternative_name=dataMap["san"],
             app_id=UUID(dataMap["id"]),
             expiration_date=int(dataMap["expiration"]),
             app_dir=Path(app["Source"]),

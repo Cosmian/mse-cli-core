@@ -9,7 +9,7 @@ from mse_cli_core.sgx_docker import SgxDockerConfig
 def test_from_sgx():
     """Test the `from_sgx` method."""
     ref_conf = NoSgxDockerConfig(
-        host="localhost",
+        subject_alternative_name="localhost",
         expiration_date=1714058115,
         size=4096,
         app_id="63322f85-1ff8-4483-91ae-f18d7398d157",
@@ -21,6 +21,7 @@ def test_from_sgx():
             size=4096,
             host="localhost",
             port=7788,
+            subject_alternative_name="localhost",
             app_id="63322f85-1ff8-4483-91ae-f18d7398d157",
             expiration_date=1714058115,
             app_dir="/home/cosmian/workspace/sgx_operator/",
@@ -36,7 +37,7 @@ def test_from_sgx():
 def test_volumes():
     """Test `volumes` function."""
     ref_conf = NoSgxDockerConfig(
-        host="localhost",
+        subject_alternative_name="localhost",
         expiration_date=1714058115,
         size=4096,
         app_id="63322f85-1ff8-4483-91ae-f18d7398d157",
@@ -54,7 +55,7 @@ def test_volumes():
 def test_cmd():
     """Test `cmd` function."""
     ref_conf = NoSgxDockerConfig(
-        host="localhost",
+        subject_alternative_name="localhost",
         expiration_date=1714058115,
         size=4096,
         app_id="63322f85-1ff8-4483-91ae-f18d7398d157",
@@ -76,7 +77,7 @@ def test_cmd():
     ]
 
     ref_conf = NoSgxDockerConfig(
-        host="localhost",
+        subject_alternative_name="localhost",
         size=4096,
         app_id="63322f85-1ff8-4483-91ae-f18d7398d157",
         application="app:app",
