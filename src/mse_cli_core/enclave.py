@@ -1,5 +1,6 @@
 """mse_cli_core.enclave module."""
 
+import logging
 import re
 import uuid
 from pathlib import Path
@@ -107,6 +108,9 @@ def verify_enclave(
             f"(read {bytes(quote.report_body.mr_signer).hex()} "
             f"but should be {bytes(mrsigner).hex()})"
         )
+
+    logging.info("MRSIGNER: %s", quote.report_body.mr_signer.hex())
+    logging.info("MRENCLAVE: %s", quote.report_body.mr_enclave.hex())
 
     if collaterals is None and pccs_url is None:
         # Azure DCAP attestation through MAA service
